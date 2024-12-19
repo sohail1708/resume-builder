@@ -17,6 +17,7 @@ st.session_state.current_page = st.sidebar.selectbox(
     "Go to", st.session_state.nav_tabs, index=st.session_state.nav_tabs.index(st.session_state.current_page)
 )
 
+
 full_name = None
 email = None
 phone = None
@@ -170,7 +171,7 @@ elif st.session_state.current_page == "Job Description":
             "projects": projects_list,
             "skills": skills.split(",") if skills else [],
         }
-        
+
         try:
             response = requests.post(BACKEND_URL, json=payload)
             if response.status_code == 200:
