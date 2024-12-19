@@ -170,6 +170,7 @@ elif st.session_state.current_page == "Job Description":
             "projects": projects_list,
             "skills": skills.split(",") if skills else [],
         }
+        
         try:
             response = requests.post(BACKEND_URL, json=payload)
             if response.status_code == 200:
