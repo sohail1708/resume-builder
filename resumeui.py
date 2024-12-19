@@ -113,34 +113,34 @@ if st.session_state.current_page == "Profile":
     if st.button("Submit"):
         # Uncomment below lines when backend is ready to handle the resume submission
 
-        # payload = {
-        #     "personal_info": {
-        #         "full_name": full_name,
-        #         "email": email,
-        #         "phone": phone,
-        #         "linkedin": linkedin,
-        #         "github": github,
-        #         "website": website,
-        #     },
-        #     "education": education_list,
-        #     "work_experience": work_experience_list,
-        #     "certifications": certifications_list,
-        #     "projects": projects_list,
-        #     "skills": skills.split(",") if skills else [],
-        # }
-        #
-        # try:
-        #     response = requests.post(BACKEND_URL, json=payload)
-        #     if response.status_code == 200:
-        #         st.success("Resume submitted successfully!")
-        #         if "Job Description" not in st.session_state.nav_tabs:
-        #             st.session_state.nav_tabs.append("Job Description")
-        #         st.session_state.current_page = "Job Description"
-        #         st.experimental_rerun()
-        #     else:
-        #         st.error(f"Failed to submit resume: {response.text}")
-        # except Exception as e:
-        #     st.error(f"An error occurred: {e}")
+        payload = {
+            "personal_info": {
+                "full_name": full_name,
+                "email": email,
+                "phone": phone,
+                "linkedin": linkedin,
+                "github": github,
+                "website": website,
+            },
+            "education": education_list,
+            "work_experience": work_experience_list,
+            "certifications": certifications_list,
+            "projects": projects_list,
+            "skills": skills.split(",") if skills else [],
+        }
+        
+        try:
+            response = requests.post(BACKEND_URL, json=payload)
+            if response.status_code == 200:
+                st.success("Resume submitted successfully!")
+                if "Job Description" not in st.session_state.nav_tabs:
+                    st.session_state.nav_tabs.append("Job Description")
+                st.session_state.current_page = "Job Description"
+                st.experimental_rerun()
+            else:
+                st.error(f"Failed to submit resume: {response.text}")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
 
         # Navigate to "Job Description" page directly for now
         if "Job Description" not in st.session_state.nav_tabs:
@@ -170,5 +170,5 @@ elif st.session_state.current_page == "Job Description":
 
     st.markdown("""<style>div.stButton {text-align:center}</style>""", unsafe_allow_html=True)
     if st.button("Generate Your Resume"):
-        st.success("Resume generation functionality will go here.")
+        st.success("Resume generation functionality will go here.")  
     st.markdown("</div>", unsafe_allow_html=True)
