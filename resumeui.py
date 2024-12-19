@@ -1,7 +1,9 @@
 import streamlit as st
+import requests
+
 
 # Backend URL
-BACKEND_URL = "http://localhost:8000/submit_resume"  # Replace with your backend API endpoint
+BACKEND_URL = "https://q6xdqysotl.execute-api.us-east-2.amazonaws.com/prod/generate-resume"  # Replace with your backend API endpoint
 
 # Initialize session state
 if "nav_tabs" not in st.session_state:
@@ -14,6 +16,18 @@ st.sidebar.title("Navigation")
 st.session_state.current_page = st.sidebar.selectbox(
     "Go to", st.session_state.nav_tabs, index=st.session_state.nav_tabs.index(st.session_state.current_page)
 )
+
+full_name = None
+email = None
+phone = None
+linkedin = None
+github = None
+website = None
+education_list = None
+work_experience_list = None
+certifications_list = None
+projects_list = None
+skills = None
 
 # Profile Page
 if st.session_state.current_page == "Profile":
@@ -113,40 +127,11 @@ if st.session_state.current_page == "Profile":
     if st.button("Submit"):
         # Uncomment below lines when backend is ready to handle the resume submission
 
-        payload = {
-            "personal_info": {
-                "full_name": full_name,
-                "email": email,
-                "phone": phone,
-                "linkedin": linkedin,
-                "github": github,
-                "website": website,
-            },
-            "education": education_list,
-            "work_experience": work_experience_list,
-            "certifications": certifications_list,
-            "projects": projects_list,
-            "skills": skills.split(",") if skills else [],
-        }
-        
-        try:
-            response = requests.post(BACKEND_URL, json=payload)
-            if response.status_code == 200:
-                st.success("Resume submitted successfully!")
-                if "Job Description" not in st.session_state.nav_tabs:
-                    st.session_state.nav_tabs.append("Job Description")
-                st.session_state.current_page = "Job Description"
-                st.experimental_rerun()
-            else:
-                st.error(f"Failed to submit resume: {response.text}")
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-
         # Navigate to "Job Description" page directly for now
         if "Job Description" not in st.session_state.nav_tabs:
             st.session_state.nav_tabs.append("Job Description")
         st.session_state.current_page = "Job Description"
-        st.experimental_rerun()
+        st.rerun()
 
 # Job Description Page
 elif st.session_state.current_page == "Job Description":
@@ -170,5 +155,34 @@ elif st.session_state.current_page == "Job Description":
 
     st.markdown("""<style>div.stButton {text-align:center}</style>""", unsafe_allow_html=True)
     if st.button("Generate Your Resume"):
-        st.success("Resume generation functionality will go here.")  
+        payload = {
+            "personal_info": {
+                "full_name": full_name,
+                "email": email,
+                "phone": phone,
+                "linkedin": linkedin,
+                "github": github,
+                "website": website,
+            },
+            "education": education_list,
+            "work_experience": work_experience_list,
+            "certifications": certifications_list,
+            "projects": projects_list,
+            "skills": skills.split(",") if skills else [],
+        }
+        
+        try:
+            response = requests.post(BACKEND_URL, json=payload)
+            if response.status_code == 200:
+                st.success("Resume submitted successfully!")
+                if "Job Description" not in st.session_state.nav_tabs:
+                    st.session_state.nav_tabs.append("Job Description")
+                st.session_state.current_page = "Job Description"
+                st.rerun()
+            else:
+                st.error(f"Failed to submit resume: {response.text}")
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+
     st.markdown("</div>", unsafe_allow_html=True)
