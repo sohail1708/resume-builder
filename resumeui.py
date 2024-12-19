@@ -1,9 +1,8 @@
 import streamlit as st
 import requests
 
-
 # Backend URL
-BACKEND_URL = "https://q6xdqysotl.execute-api.us-east-2.amazonaws.com/prod/generate-resume"  # Replace with your backend API endpoint
+BACKEND_URL = "https://q6xdqysotl.execute-api.us-east-2.amazonaws.com/prod/generate-resume"
 
 # Initialize session state
 if "nav_tabs" not in st.session_state:
@@ -17,33 +16,20 @@ st.session_state.current_page = st.sidebar.selectbox(
     "Go to", st.session_state.nav_tabs, index=st.session_state.nav_tabs.index(st.session_state.current_page)
 )
 
-
-full_name = None
-email = None
-phone = None
-linkedin = None
-github = None
-website = None
-education_list = None
-work_experience_list = None
-certifications_list = None
-projects_list = None
-skills = None
-
 # Profile Page
 if st.session_state.current_page == "Profile":
     st.title("Resume Builder")
 
     # Basic Information
     st.header("Personal Information")
-    full_name = st.text_input("Full Name")
-    email = st.text_input("Email Address")
-    phone = st.text_input("Phone Number")
-    linkedin = st.text_input("LinkedIn Profile")
-    github = st.text_input("GitHub Profile")
-    website = st.text_input("Personal Website")
+    st.session_state["full_name"] = st.text_input("Full Name", st.session_state.get("full_name", ""))
+    st.session_state["email"] = st.text_input("Email Address", st.session_state.get("email", ""))
+    st.session_state["phone"] = st.text_input("Phone Number", st.session_state.get("phone", ""))
+    st.session_state["linkedin"] = st.text_input("LinkedIn Profile", st.session_state.get("linkedin", ""))
+    st.session_state["github"] = st.text_input("GitHub Profile", st.session_state.get("github", ""))
+    st.session_state["website"] = st.text_input("Personal Website", st.session_state.get("website", ""))
 
-    # Initialize session state for dynamic sections
+    # Initialize dynamic sections in session state
     if "education" not in st.session_state:
         st.session_state.education = [{}]
 
@@ -68,6 +54,8 @@ if st.session_state.current_page == "Profile":
     if st.button("Add Education"):
         st.session_state.education.append({})
 
+    st.session_state["education"] = education_list
+
     # Dynamic Work Experience Section
     st.header("Work Experience")
     work_experience_list = []
@@ -88,6 +76,8 @@ if st.session_state.current_page == "Profile":
     if st.button("Add Work Experience"):
         st.session_state.work_experience.append({})
 
+    st.session_state["work_experience"] = work_experience_list
+
     # Dynamic Certifications Section
     st.header("Certifications")
     certifications_list = []
@@ -103,6 +93,8 @@ if st.session_state.current_page == "Profile":
             })
     if st.button("Add Certification"):
         st.session_state.certifications.append({})
+
+    st.session_state["certifications"] = certifications_list
 
     # Dynamic Projects Section
     st.header("Projects")
@@ -120,15 +112,14 @@ if st.session_state.current_page == "Profile":
     if st.button("Add Project"):
         st.session_state.projects.append({})
 
+    st.session_state["projects"] = projects_list
+
     # Skills Section
     st.header("Skills")
-    skills = st.text_area("List your skills (separated by commas)")
+    st.session_state["skills"] = st.text_area("List your skills (separated by commas)", st.session_state.get("skills", ""))
 
     # Submit Button
     if st.button("Submit"):
-        # Uncomment below lines when backend is ready to handle the resume submission
-
-        # Navigate to "Job Description" page directly for now
         if "Job Description" not in st.session_state.nav_tabs:
             st.session_state.nav_tabs.append("Job Description")
         st.session_state.current_page = "Job Description"
@@ -140,50 +131,28 @@ elif st.session_state.current_page == "Job Description":
     job_description = st.text_area("Paste the job description here")
     st.write("You can now analyze the job description against your resume.")
 
-    st.markdown(
-        """
-        <style>
-        .center-btn {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 50vh;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("""<style>div.stButton {text-align:center}</style>""", unsafe_allow_html=True)
     if st.button("Generate Your Resume"):
         payload = {
             "personal_info": {
-                "full_name": full_name,
-                "email": email,
-                "phone": phone,
-                "linkedin": linkedin,
-                "github": github,
-                "website": website,
+                "full_name": st.session_state.get("full_name"),
+                "email": st.session_state.get("email"),
+                "phone": st.session_state.get("phone"),
+                "linkedin": st.session_state.get("linkedin"),
+                "github": st.session_state.get("github"),
+                "website": st.session_state.get("website"),
             },
-            "education": education_list,
-            "work_experience": work_experience_list,
-            "certifications": certifications_list,
-            "projects": projects_list,
-            "skills": skills.split(",") if skills else [],
+            "education": st.session_state.get("education", []),
+            "work_experience": st.session_state.get("work_experience", []),
+            "certifications": st.session_state.get("certifications", []),
+            "projects": st.session_state.get("projects", []),
+            "skills": st.session_state.get("skills", "").split(","),
         }
 
         try:
             response = requests.post(BACKEND_URL, json=payload)
             if response.status_code == 200:
                 st.success("Resume submitted successfully!")
-                if "Job Description" not in st.session_state.nav_tabs:
-                    st.session_state.nav_tabs.append("Job Description")
-                st.session_state.current_page = "Job Description"
-                st.rerun()
             else:
                 st.error(f"Failed to submit resume: {response.text}")
         except Exception as e:
             st.error(f"An error occurred: {e}")
-
-
-    st.markdown("</div>", unsafe_allow_html=True)
